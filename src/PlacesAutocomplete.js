@@ -18,16 +18,23 @@ class PlacesAutocomplete extends Component {
     this.autocompleteCallback = this.autocompleteCallback.bind(this)
     this.handleInputKeyDown = this.handleInputKeyDown.bind(this)
     this.handleInputChange = this.handleInputChange.bind(this)
-    this.debouncedFetchPredictions = debounce(this.fetchPredictions, this.props.debounce)
+    this.debouncedFetchPredictions = debounce(
+      this.fetchPredictions,
+      this.props.debounce
+    )
   }
 
   componentDidMount() {
     if (!window.google) {
-      throw new Error('Google Maps JavaScript API library must be loaded. See: https://github.com/kenny-hibino/react-places-autocomplete#load-google-library')
+      throw new Error(
+        'Google Maps JavaScript API library must be loaded. See: https://github.com/kenny-hibino/react-places-autocomplete#load-google-library'
+      )
     }
 
     if (!window.google.maps.places) {
-      throw new Error('Google Maps Places library must be loaded. Please add `libraries=places` to the src URL. See: https://github.com/kenny-hibino/react-places-autocomplete#load-google-library')
+      throw new Error(
+        'Google Maps Places library must be loaded. Please add `libraries=places` to the src URL. See: https://github.com/kenny-hibino/react-places-autocomplete#load-google-library'
+      )
     }
 
     this.autocompleteService = new google.maps.places.AutocompleteService()
@@ -37,14 +44,16 @@ class PlacesAutocomplete extends Component {
   autocompleteCallback(predictions, status) {
     if (status != this.autocompleteOK) {
       this.props.onError(status)
-      if (this.props.clearItemsOnError) { this.clearAutocomplete() }
+      if (this.props.clearItemsOnError) {
+        this.clearAutocomplete()
+      }
       return
     }
 
     // transform snake_case to camelCase
-    const formattedSuggestion = (structured_formatting) => ({
+    const formattedSuggestion = structured_formatting => ({
       mainText: structured_formatting.main_text,
-      secondaryText: structured_formatting.secondary_text,
+      secondaryText: structured_formatting.secondary_text
     })
 
     const { highlightFirstSuggestion } = this.props
@@ -53,9 +62,9 @@ class PlacesAutocomplete extends Component {
       autocompleteItems: predictions.map((p, idx) => ({
         suggestion: p.description,
         placeId: p.place_id,
-        active: (highlightFirstSuggestion && idx === 0 ? true : false),
+        active: highlightFirstSuggestion && idx === 0 ? true : false,
         index: idx,
-        formattedSuggestion: formattedSuggestion(p.structured_formatting),
+        formattedSuggestion: formattedSuggestion(p.structured_formatting)
       }))
     })
   }
@@ -63,10 +72,13 @@ class PlacesAutocomplete extends Component {
   fetchPredictions() {
     const { value } = this.props.inputProps
     if (value.length) {
-      this.autocompleteService.getPlacePredictions({
-        ...this.props.options,
-        input: value
-      }, this.autocompleteCallback)
+      this.autocompleteService.getPlacePredictions(
+        {
+          ...this.props.options,
+          input: value
+        },
+        this.autocompleteCallback
+      )
     }
   }
 
@@ -80,7 +92,9 @@ class PlacesAutocomplete extends Component {
   }
 
   handleSelect(address, placeId) {
-    this.props.onSelect ? this.props.onSelect(address, placeId) : this.props.inputProps.onChange(address)
+    this.props.onSelect
+      ? this.props.onSelect(address, placeId)
+      : this.props.inputProps.onChange(address)
   }
 
   getActiveItem() {
@@ -88,7 +102,9 @@ class PlacesAutocomplete extends Component {
   }
 
   selectActiveItemAtIndex(index) {
-    const activeName = this.state.autocompleteItems.find(item => item.index === index).suggestion
+    const activeName = this.state.autocompleteItems.find(
+      item => item.index === index
+    ).suggestion
     this.setActiveItemAtIndex(index)
     this.props.inputProps.onChange(activeName)
   }
@@ -120,7 +136,8 @@ class PlacesAutocomplete extends Component {
     if (activeItem === undefined) {
       this.selectActiveItemAtIndex(0)
     } else {
-      const nextIndex = (activeItem.index + 1) % this.state.autocompleteItems.length
+      const nextIndex =
+        (activeItem.index + 1) % this.state.autocompleteItems.length
       this.selectActiveItemAtIndex(nextIndex)
     }
   }
@@ -176,7 +193,7 @@ class PlacesAutocomplete extends Component {
         } else {
           return { ...item, active: false }
         }
-      }),
+      })
     })
   }
 
@@ -208,7 +225,7 @@ class PlacesAutocomplete extends Component {
       return {
         ...acc,
         ...defaultStyles[prop],
-        ...styles[prop],
+        ...styles[prop]
       }
     }, {})
   }
@@ -224,24 +241,24 @@ class PlacesAutocomplete extends Component {
 
   getInputProps() {
     const defaultInputProps = {
-      type: "text",
-      autoComplete: "off",
+      type: 'text',
+      autoComplete: 'off'
     }
 
     return {
       ...defaultInputProps,
       ...this.props.inputProps,
-      onChange: (event) => {
+      onChange: event => {
         this.handleInputChange(event)
       },
-      onKeyDown: (event) => {
+      onKeyDown: event => {
         this.handleInputKeyDown(event)
       },
-      onBlur: (event) => {
+      onBlur: event => {
         this.handleInputOnBlur(event)
       },
       style: this.inlineStyleFor('input'),
-      className: this.classNameFor('input'),
+      className: this.classNameFor('input')
     }
   }
 
@@ -268,9 +285,30 @@ class PlacesAutocomplete extends Component {
                 onMouseDown={() => this.selectAddress(p.suggestion, p.placeId)}
                 onTouchStart={() => this.setActiveItemAtIndex(p.index)}
                 onTouchEnd={() => this.selectAddress(p.suggestion, p.placeId)}
-                style={ p.active ? this.inlineStyleFor('autocompleteItem', 'autocompleteItemActive') :this.inlineStyleFor('autocompleteItem') }
-                className={ p.active ? this.classNameFor('autocompleteItem', 'autocompleteItemActive') : this.classNameFor('autocompleteItem') }>
-                {this.props.autocompleteItem({ suggestion: p.suggestion, formattedSuggestion: p.formattedSuggestion })}
+                style={
+                  p.active ? (
+                    this.inlineStyleFor(
+                      'autocompleteItem',
+                      'autocompleteItemActive'
+                    )
+                  ) : (
+                    this.inlineStyleFor('autocompleteItem')
+                  )
+                }
+                className={
+                  p.active ? (
+                    this.classNameFor(
+                      'autocompleteItem',
+                      'autocompleteItemActive'
+                    )
+                  ) : (
+                    this.classNameFor('autocompleteItem')
+                  )
+                }>
+                {this.props.autocompleteItem({
+                  suggestion: p.suggestion,
+                  formattedSuggestion: p.formattedSuggestion
+                })}
               </div>
             ))}
             {this.props.googleLogo && (
@@ -279,12 +317,18 @@ class PlacesAutocomplete extends Component {
                 style={this.inlineStyleFor('googleLogoContainer')}
                 className={this.classNameFor('googleLogoContainer')}>
                 <img
-                  src={require(`./images/powered_by_google_${this.props.googleLogoType}.png`)}
+                  src={
+                    this.props.googleLogoType === 'default' ? (
+                      'https://maps.gstatic.com/mapfiles/api-3/images/powered-by-google-on-white3_hdpi.png'
+                    ) : (
+                      'https://maps.gstatic.com/mapfiles/api-3/images/powered-by-google-on-non-white3_hdpi.png'
+                    )
+                  }
                   style={this.inlineStyleFor('googleLogoImage')}
                   className={this.classNameFor('googleLogoImage')}
                 />
-              </div>)
-            }
+              </div>
+            )}
           </div>
         )}
       </div>
@@ -294,14 +338,14 @@ class PlacesAutocomplete extends Component {
 
 PlacesAutocomplete.propTypes = {
   inputProps: (props, propName) => {
-    const inputProps = props[propName];
+    const inputProps = props[propName]
 
     if (!inputProps.hasOwnProperty('value')) {
-      throw new Error('\'inputProps\' must have \'value\'.')
+      throw new Error("'inputProps' must have 'value'.")
     }
 
     if (!inputProps.hasOwnProperty('onChange')) {
-      throw new Error('\'inputProps\' must have \'onChange\'.')
+      throw new Error("'inputProps' must have 'onChange'.")
     }
   },
   onError: PropTypes.func,
@@ -313,7 +357,7 @@ PlacesAutocomplete.propTypes = {
     input: PropTypes.string,
     autocompleteContainer: PropTypes.string,
     autocompleteItem: PropTypes.string,
-    autocompleteItemActive: PropTypes.string,
+    autocompleteItemActive: PropTypes.string
   }),
   styles: PropTypes.shape({
     root: PropTypes.object,
@@ -326,33 +370,31 @@ PlacesAutocomplete.propTypes = {
     bounds: PropTypes.object,
     componentRestrictions: PropTypes.object,
     location: PropTypes.object,
-    offset: PropTypes.oneOfType([
-      PropTypes.number,
-      PropTypes.string
-    ]),
-    radius: PropTypes.oneOfType([
-      PropTypes.number,
-      PropTypes.string
-    ]),
+    offset: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
+    radius: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
     types: PropTypes.array
   }),
   debounce: PropTypes.number,
   highlightFirstSuggestion: PropTypes.bool,
   googleLogo: PropTypes.bool,
-  googleLogoType: PropTypes.oneOf(["default", "inverse"]),
+  googleLogoType: PropTypes.oneOf(['default', 'inverse'])
 }
 
 PlacesAutocomplete.defaultProps = {
   clearItemsOnError: false,
-  onError: (status) => console.error('[react-places-autocomplete]: error happened when fetching data from Google Maps API.\nPlease check the docs here (https://developers.google.com/maps/documentation/javascript/places#place_details_responses)\nStatus: ', status),
+  onError: status =>
+    console.error(
+      '[react-places-autocomplete]: error happened when fetching data from Google Maps API.\nPlease check the docs here (https://developers.google.com/maps/documentation/javascript/places#place_details_responses)\nStatus: ',
+      status
+    ),
   classNames: {},
-  autocompleteItem: ({ suggestion }) => (<div>{suggestion}</div>),
+  autocompleteItem: ({ suggestion }) => <div>{suggestion}</div>,
   styles: {},
   options: {},
   debounce: 200,
   highlightFirstSuggestion: false,
   googleLogo: true,
-  googleLogoType: 'default',
+  googleLogoType: 'default'
 }
 
 export default PlacesAutocomplete
